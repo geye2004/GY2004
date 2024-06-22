@@ -1,0 +1,169 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+class Restaurant {
+private:
+    string id;
+    string name;
+    string openDate;
+    string address;
+    string cuisineType;
+    string ownerName;
+    string ownerID;
+    // Add other fields as required
+
+public:
+    Restaurant(string id, string name, string openDate, string address,
+        string cuisineType, string ownerName, string ownerID)
+        : id(id), name(name), openDate(openDate), address(address),
+        cuisineType(cuisineType), ownerName(ownerName), ownerID(ownerID) {}
+
+    string getId() const { return id; }
+
+    void display() const {
+        cout << "ID: " << id << "\n"
+            << "Name: " << name << "\n"
+            << "Open Date: " << openDate << "\n"
+            << "Address: " << address << "\n"
+            << "Cuisine Type: " << cuisineType << "\n"
+            << "Owner Name: " << ownerName << "\n"
+            << "Owner ID: " << ownerID << "\n";
+    }
+
+    void save(ofstream& ofs) const {
+        ofs << id << "," << name << "," << openDate << "," << address << ","
+            << cuisineType << "," << ownerName << "," << ownerID << "\n";
+    }
+
+    static Restaurant load(ifstream& ifs) {
+        string id, name, openDate, address, cuisineType, ownerName, ownerID;
+        getline(ifs, id, ',');
+        getline(ifs, name, ',');
+        getline(ifs, openDate, ',');
+        getline(ifs, address, ',');
+        getline(ifs, cuisineType, ',');
+        getline(ifs, ownerName, ',');
+        getline(ifs, ownerID);
+        return Restaurant(id, name, openDate, address, cuisineType, ownerName, ownerID);
+    }
+};
+
+class TouristManagementSystem {
+private:
+    vector<Restaurant> restaurants;
+
+public:
+    void addRestaurant(const Restaurant& restaurant) {
+        auto it = find_if(restaurants.begin(), restaurants.end(),
+            [&](const Restaurant& r) { return r.getId() == restaurant.getId(); });
+        if (it != restaurants.end()) {
+            cout << "Error: Restaurant with this ID already exists.\n";
+        }
+        else {
+            restaurants.push_back(restaurant);
+            cout << "Restaurant added successfully.\n";
+        }
+    }
+
+    void displayRestaurants() const {
+        for (const auto& restaurant : restaurants) {
+            restaurant.display();
+            cout << "--------------------------\n";
+        }
+    }
+
+    void saveToFile(const string& filename) const {
+        ofstream ofs(filename);
+        if (!ofs.is_open()) {
+            cout << "Error: Could not open file for writing.\n";
+            return;
+        }
+        for (const auto& restaurant : restaurants) {
+            restaurant.save(ofs);
+        }
+        ofs.close();
+        cout << "Data saved to file successfully.\n";
+    }
+
+    void loadFromFile(const string& filename) {
+        ifstream ifs(filename);
+        if (!ifs.is_open()) {
+            cout << "Error: Could not open file for reading.\n";
+            return;
+        }
+        restaurants.clear();
+        while (ifs.peek() != EOF) {
+            restaurants.push_back(Restaurant::load(ifs));
+        }
+        ifs.close();
+        cout << "Data loaded from file successfully.\n";
+    }
+
+    // Add methods for modifying and deleting records as needed
+};
+
+int main() {
+    TouristManagementSystem system;
+    int choice;
+
+    do {
+        cout << "1. 添加餐厅信息\n";
+        cout << "2. 显示餐厅信息\n";
+        cout << "3. 保存到文件\n";
+        cout << "4. 从文件加载\n";
+        cout << "5. 退出\n";
+        cout << "请输入你的选择: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1: {
+            string id, name, openDate, address, cuisineType, ownerName, ownerID;
+            cout << "输入ID: ";
+            cin >> id;
+            cout << "输入名称: ";
+            cin >> name;
+            cout << "输入开业日期: ";
+            cin >> openDate;
+            cout << "输入地址: ";
+            cin >> address;
+            cout << "输入菜系类型: ";
+            cin >> cuisineType;
+            cout << "输入业主姓名: ";
+            cin >> ownerName;
+            cout << "输入业主ID: ";
+            cin >> ownerID;
+            Restaurant restaurant(id, name, openDate, address, cuisineType, ownerName, ownerID);
+            system.addRestaurant(restaurant);
+            break;
+        }
+        case 2:
+            system.displayRestaurants();
+            break;
+        case 3: {
+            string filename;
+            cout << "输入要保存的文件名: ";
+            cin >> filename;
+            system.saveToFile(filename);
+            break;
+        }
+        case 4: {
+            string filename;
+            cout << "输入要加载的文件名: ";
+            cin >> filename;
+            system.loadFromFile(filename);
+            break;
+        }
+        case 5:
+            cout << "正在退出...\n";
+            break;
+        default:
+            cout << "无效的选择，请重试。\n";
+        }
+    } while (choice != 5);
+
+    return 0;
+}

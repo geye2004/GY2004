@@ -1,0 +1,107 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+
+using namespace std;
+
+struct Athlete {
+    string name;
+    string college;
+    string level;
+    string gender;
+    int number;
+    int event;
+    int group;
+    int lane;
+    double score;
+};
+
+// 按道次排序
+bool compareByLane(const Athlete& a, const Athlete& b) {
+    return a.lane < b.lane;
+}
+
+// 按成绩排序
+bool compareByScore(const Athlete& a, const Athlete& b) {
+    return a.score < b.score;
+}
+
+int main() {
+    const int numAthletes = 16;
+    vector<Athlete> athletes(numAthletes);
+
+    // 输入运动员信息
+    for (int i = 0; i < numAthletes; i++) {
+        cout << "请输入第 " << i + 1 << " 个运动员的信息 (姓名 学院 级别 性别 号码 比赛项目 组次 道次 成绩): ";
+        cin >> athletes[i].name >> athletes[i].college >> athletes[i].level >> athletes[i].gender
+            >> athletes[i].number >> athletes[i].event >> athletes[i].group >> athletes[i].lane >> athletes[i].score;
+    }
+
+    // 按道次对每个组次的八个队员进行排序
+    vector<Athlete> group1, group2;
+    for (const auto& athlete : athletes) {
+        if (athlete.group == 1) {
+            group1.push_back(athlete);
+        }
+        else if (athlete.group == 2) {
+            group2.push_back(athlete);
+        }
+    }
+
+    sort(group1.begin(), group1.end(), compareByLane);
+    sort(group2.begin(), group2.end(), compareByLane);
+
+    // 输出分组后的结果
+    cout << "\n组1按道次排序结果:\n";
+    for (const auto& athlete : group1) {
+        cout << athlete.name << " " << athlete.college << " " << athlete.level << " " << athlete.gender
+            << " " << athlete.number << " " << athlete.event << " " << athlete.group << " "
+            << athlete.lane << " " << athlete.score << endl;
+    }
+
+    cout << "\n组2按道次排序结果:\n";
+    for (const auto& athlete : group2) {
+        cout << athlete.name << " " << athlete.college << " " << athlete.level << " " << athlete.gender
+            << " " << athlete.number << " " << athlete.event << " " << athlete.group << " "
+            << athlete.lane << " " << athlete.score << endl;
+    }
+
+    // 按成绩对运动员进行排序
+    sort(athletes.begin(), athletes.end(), compareByScore);
+
+    // 选择前八名进入决赛并分配道次
+    vector<Athlete> finalists;
+    for (int i = 0; i < 8; i++) {
+        finalists.push_back(athletes[i]);
+        finalists[i].lane = i + 1; // 分配道次
+    }
+
+    // 输出进入决赛的运动员名单及分配的道次
+    cout << "\n进入决赛的运动员及分配的道次:\n";
+    for (const auto& athlete : finalists) {
+        cout << athlete.name << " " << athlete.college << " " << athlete.level << " " << athlete.gender
+            << " " << athlete.number << " " << athlete.event << " " << athlete.group << " "
+            << athlete.lane << " " << athlete.score << endl;
+    }
+
+    // 输入决赛成绩
+    cout << "\n请输入进入决赛的运动员的比赛成绩:\n";
+    for (auto& athlete : finalists) {
+        cout << athlete.name << " 的成绩: ";
+        cin >> athlete.score;
+    }
+
+    // 按决赛成绩排序
+    sort(finalists.begin(), finalists.end(), compareByScore);
+
+    // 输出决赛成绩排序结果
+    cout << "\n决赛成绩排序结果:\n";
+    for (const auto& athlete : finalists) {
+        cout << athlete.name << " " << athlete.college << " " << athlete.level << " " << athlete.gender
+            << " " << athlete.number << " " << athlete.event << " " << athlete.group << " "
+            << athlete.lane << " " << athlete.score << endl;
+    }
+
+    return 0;
+}
